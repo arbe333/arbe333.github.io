@@ -75,7 +75,7 @@
                 })
 
                 var toilets;
-                $.getJSON('./../data/wc.geojson', function(data){
+                $.getJSON('./../data/toilet.geojson', function(data){
                     toilets = data;
                 })
 
@@ -189,7 +189,10 @@
                     var layers = document.getElementById('menu');
                     layers.appendChild(link);
                 }
- 
+                var center = [121.343, 24.984];
+                var radius = 5;
+                var options = {steps: 10, units: 'kilometers', properties: {foo: 'bar'}};
+                var circle = turf.circle(center, radius, options);
             </script>
         </div>
     </body>

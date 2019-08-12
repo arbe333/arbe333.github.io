@@ -162,6 +162,13 @@
                         var lon = e.lngLat.lng;
                         var lat = e.lngLat.lat;
 
+                        var mapLayer = map.getLayer('buffer');
+
+                        if(typeof mapLayer !== 'undefined') {
+                            // Remove map layer & source.
+                            map.removeLayer('buffer').removeSource('buffer');
+                        }
+                        
                         var polygon = {
                             "type": "Feature",
                             "geometry": {
@@ -170,17 +177,24 @@
                             }
                         }
 
+                        var Buffer5km = turf.buffer(polygon, 5, {units: 'kilometers'});
+
                         map.addLayer({
-                            "id": "points",
-                            "type": "circle",
+                            "id": "buffer",
+                            "type": "fill",
                             "source": {
                                 "type": "geojson",
-                                "data": polygon
+                                "data": Buffer5km
+                            },
+                            'paint': {
+                                "fill-color": "#8FE7BD",
+                                "fill-opacity": 0.75,
+                                "fill-outline-color": "#8FE7BD"
                             }
                         });
-                    });
-                
 
+                        map.getSource('buffer').setData(Buffer5km);
+                    });
                 });
 
                 // optional layer

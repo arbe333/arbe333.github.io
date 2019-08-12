@@ -75,7 +75,7 @@
                 })
 
                 var toilets;
-                $.getJSON('./../data/toilet.geojson', function(data){
+                $.getJSON('./../data/wc.geojson', function(data){
                     toilets = data;
                 })
 
@@ -156,6 +156,12 @@
 
                         map.getCanvas().style.cursor = features.length ? 'pointer' : '';
                     });
+
+                    var center = [121, 23];
+                    var radius = 5;
+                    var options = {steps: 10, units: 'kilometers', properties: {foo: 'bar'}};
+                    var circle = turf.circle(center, radius, options);
+
                 });
 
                 // optional layer

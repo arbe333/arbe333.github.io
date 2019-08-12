@@ -17,12 +17,39 @@
                 padding: 0;
                 }
                 
-                #map {
+            #map {
                 position: absolute;
                 top: 0;
                 bottom: 0;
                 width: 100%;
-                }
+            }
+
+            #bufferRange {
+                background: #fff;
+                position: absolute;
+                z-index: 1;
+                top: 10px;
+                left: 10px;
+                border-radius: 3px;
+                width: 120px;
+                border: 1px solid rgba(0,0,0,0.4);
+                font-family: 'Open Sans', sans-serif;
+                padding: 10px;
+            }
+
+            button {
+                background: #fff;
+                position: relative;
+                z-index: 1;
+                top: 50px;
+                left: 10px;
+                border-radius: 3px;
+                width: 120px;
+                border: 1px solid rgba(0,0,0,0.4);
+                font-family: 'Open Sans', sans-serif;
+                padding: 10px;
+            }
+
             #menu {
                 background: #fff;
                 position: absolute;
@@ -65,6 +92,8 @@
                 background: #3074a4;
             }
         </style>
+        <input id="bufferRange"></input>
+        <button onclick="setRange()">Set Range</button>
         <nav id="menu"></nav>
         <pre id='info'></pre>
         <div id='map'>
@@ -86,6 +115,13 @@
                     center: [121.5, 25], // starting position
                     zoom: 9 // starting zoom
                 });
+
+                var bufferRange = 5;
+
+                function setRange() {
+                    bufferRange = document.getElementById("bufferRange").value;
+                    console.log(bufferRange);
+                }
 
                 map.on('load', function() {
                     map.addLayer({
@@ -177,14 +213,14 @@
                             }
                         }
 
-                        var Buffer5km = turf.buffer(polygon, 5, {units: 'kilometers'});
+                        var BufferKm = turf.buffer(polygon, bufferRange, {units: 'kilometers'});
 
                         map.addLayer({
                             "id": "buffer",
                             "type": "fill",
                             "source": {
                                 "type": "geojson",
-                                "data": Buffer5km
+                                "data": BufferKm
                             },
                             'paint': {
                                 "fill-color": "#8FE7BD",
@@ -192,8 +228,6 @@
                                 "fill-outline-color": "#8FE7BD"
                             }
                         });
-
-                        map.getSource('buffer').setData(Buffer5km);
                     });
                 });
 

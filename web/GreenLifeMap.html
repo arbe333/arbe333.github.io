@@ -7,8 +7,7 @@
         <title>綠色生活地圖</title>
         <link href='https://api.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.css' rel='stylesheet' />
         <script src='https://api.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.js'></script>
-        <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js'></script>
-        <!--<script src="jquery-3.4.1.min.js"></script>-->
+        <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     </head>
     <body>
@@ -67,6 +66,7 @@
             }
         </style>
         <nav id="menu"></nav>
+        <pre id='info'></pre>
         <div id='map'>
             <script>
                 var gogoros;
@@ -157,10 +157,29 @@
                         map.getCanvas().style.cursor = features.length ? 'pointer' : '';
                     });
 
-                    var center = [121, 23];
-                    var radius = 5;
-                    var options = {steps: 10, units: 'kilometers', properties: {foo: 'bar'}};
-                    var circle = turf.circle(center, radius, options);
+                    
+                    map.on('click', function (e) {
+                        var lon = e.lngLat.lng;
+                        var lat = e.lngLat.lat;
+
+                        var polygon = {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Point",
+                                "coordinates": [lon, lat]
+                            }
+                        }
+
+                        map.addLayer({
+                            "id": "points",
+                            "type": "circle",
+                            "source": {
+                                "type": "geojson",
+                                "data": polygon
+                            }
+                        });
+                    });
+                
 
                 });
 

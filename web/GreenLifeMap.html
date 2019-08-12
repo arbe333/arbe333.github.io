@@ -127,7 +127,9 @@
                         var feature = features[0];
                         var name = feature['properties']['店名'];
                         var openTime = feature['properties']['營業時間'];
-                        var gogoroinfo = name+'<br>營業時間：'+openTime;
+                        var address = feature['properties']['地址'];
+                        var state = feature['properties']['State'] === 1?'啟用中':'未啟用';
+                        var gogoroinfo = name+'<br>'+address+'<br>營業時間：'+openTime+'<br>'+state;
                         gogoropupup.setLngLat(feature.geometry.coordinates)
                             .setHTML(gogoroinfo)
                             .addTo(map);
@@ -144,7 +146,9 @@
                         var feature = features[0];
                         var name = feature['properties']['content/properties/Name/__text'];
                         var grade = feature['properties']['content/properties/Grade/__text'];
-                        var toiletinfo = name + '<br>' + grade;
+                        var type1 = feature['properties']['content\/properties\/Type\/__text'];
+                        var type2 = feature['properties']['content\/properties\/Type2\/__text'];
+                        var toiletinfo = name + '<br>' + grade + '<br>' + type1 + '<br>' + type2;
                         toiletpopup.setLngLat(feature.geometry.coordinates)
                             .setHTML(toiletinfo)
                             .addTo(map);

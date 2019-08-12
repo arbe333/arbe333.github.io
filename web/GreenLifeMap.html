@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Document</title>
+        <link href='https://api.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.css' rel='stylesheet' />
+        <script src='https://api.mapbox.com/mapbox-gl-js/v1.2.0/mapbox-gl.js'></script>
+        <script src='https://api.mapbox.com/mapbox.js/plugins/turf/v3.0.11/turf.min.js'></script>
+        <!--<script src="jquery-3.4.1.min.js"></script>-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                }
+                
+                #map {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 100%;
+                }
+            #menu {
+                background: #fff;
+                position: absolute;
+                z-index: 1;
+                top: 10px;
+                right: 10px;
+                border-radius: 3px;
+                width: 120px;
+                border: 1px solid rgba(0,0,0,0.4);
+                font-family: 'Open Sans', sans-serif;
+            }
+                
+            #menu a {
+                font-size: 13px;
+                color: #404040;
+                display: block;
+                margin: 0;
+                padding: 0;
+                padding: 10px;
+                text-decoration: none;
+                border-bottom: 1px solid rgba(0,0,0,0.25);
+                text-align: center;
+            }
+                
+            #menu a:last-child {
+                border: none;
+            }
+                
+            #menu a:hover {
+                background-color: #f8f8f8;
+                color: #404040;
+            }
+                
+            #menu a.active {
+                background-color: #3887be;
+                color: #ffffff;
+            }
+                
+            #menu a.active:hover {
+                background: #3074a4;
+            }
+        </style>
+        <nav id="menu"></nav>
+        <div id='map'>
+            <script>
+                var gogoros;
+                $.getJSON('./../data/gogoro.geojson', function(data){
+                    gogoros = data;
+                })
+
+                var toilets;
+                $.getJSON('./../data/wc.geojson', function(data){
+                    toilets = data;
+                })
+
+                mapboxgl.accessToken = 'pk.eyJ1IjoiYXJiZTMzMyIsImEiOiJjam92NXV2d20xMjFqM3ZzNXlza3lnamp0In0.1e869HKjN--NZqCaTmnqqQ';
+                var map = new mapboxgl.Map({
+                container: 'map', // container id
+                style: 'mapbox://styles/mapbox/light-v10', // stylesheet location
+                center: [121.5, 25], // starting position
+                zoom: 9 // starting zoom
+                });
+
+                map.on('load', function() {
+                    map.addLayer({
+                        id: 'gogoros',
+                        type: 'symbol',
+                        source: {
+                        type: 'geojson',
+                        data: gogoros
+                        },
+                        layout: {
+                        'icon-image': 'fuel-11',
+                        'icon-allow-overlap': true
+                        },
+                        paint: { }
+                    });
+                    map.addLayer({
+                        id: 'toilets',
+                        type: 'symbol',
+                        source: {
+                        type: 'geojson',
+                        data: toilets
+                        },
+                        layout: {
+                        'icon-image': 'toilet-11',
+                        'icon-allow-overlap': true
+                        },
+                        paint: { }
+                    });
+
+                    var gogoropupup = new mapboxgl.Popup();
+                    var toiletpopup = new mapboxgl.Popup();
+
+                    map.on('mousemove', function(e) {
+                        var features = map.queryRenderedFeatures(e.point, { layers: ['gogoros'] });
+                        if (!features.length) {
+                            gogoropupup.remove();
+                            return;
+                        }
+                        var feature = features[0];
+                        var name = feature['properties']['店名'];
+                        var openTime = feature['properties']['營業時間'];
+                        var gogoroinfo = name+'<br>營業時間：'+openTime;
+                        gogoropupup.setLngLat(feature.geometry.coordinates)
+                            .setHTML(gogoroinfo)
+                            .addTo(map);
+
+                        map.getCanvas().style.cursor = features.length ? 'pointer' : '';
+                    });
+
+                    map.on('mousemove', function(e) {
+                        var features = map.queryRenderedFeatures(e.point, { layers: ['toilets'] });
+                        if (!features.length) {
+                            toiletpopup.remove();
+                            return;
+                        }
+                        var feature = features[0];
+                        var name = feature['properties']['content/properties/Name/__text'];
+                        var grade = feature['properties']['content/properties/Grade/__text'];
+                        var toiletinfo = name + '<br>' + grade;
+                        toiletpopup.setLngLat(feature.geometry.coordinates)
+                            .setHTML(toiletinfo)
+                            .addTo(map);
+
+                        map.getCanvas().style.cursor = features.length ? 'pointer' : '';
+                    });
+                });
+
+                // optional layer
+                var toggleableLayerIds = [ 'gogoros', 'toilets' ];
+                // var toggleableLayerLabels = ['gogoro', 'toilet'];
+ 
+                for (var i = 0; i < toggleableLayerIds.length; i++) {
+                    var id = toggleableLayerIds[i];
+                    
+                    var link = document.createElement('a');
+                    link.href = '#';
+                    link.className = 'active';
+                    link.textContent = id;
+                    
+                    link.onclick = function (e) {
+                        var clickedLayer = this.textContent;
+                        e.preventDefault();
+                        e.stopPropagation();
+                    
+                        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+                    
+                        if (visibility === 'visible') {
+                            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                            this.className = '';
+                        } else {
+                            this.className = 'active';
+                            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+                        }
+                    };
+                    
+                    var layers = document.getElementById('menu');
+                    layers.appendChild(link);
+                }
+ 
+            </script>
+        </div>
+    </body>
+</html>

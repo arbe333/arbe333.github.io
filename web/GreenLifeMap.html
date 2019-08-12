@@ -148,7 +148,7 @@
                         var grade = feature['properties']['content/properties/Grade/__text'];
                         var type1 = feature['properties']['content\/properties\/Type\/__text'];
                         var type2 = feature['properties']['content\/properties\/Type2\/__text'];
-                        var toiletinfo = name + '<br>' + grade + '<br>' + type1 + '<br>' + type2;
+                        var toiletinfo = name+'<br>'+grade+'<br>'+type1+'<br>位於'+type2+'內';
                         toiletpopup.setLngLat(feature.geometry.coordinates)
                             .setHTML(toiletinfo)
                             .addTo(map);

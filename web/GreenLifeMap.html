@@ -92,7 +92,7 @@
                 background: #3074a4;
             }
         </style>
-        <input id="bufferRange"></input>
+        <input id="bufferRange" placeholder='meters'></input>
         <button onclick="setRange()">Set Range</button>
         <nav id="menu"></nav>
         <pre id='info'></pre>
@@ -116,7 +116,7 @@
                     zoom: 9 // starting zoom
                 });
 
-                var bufferRange = 5;
+                var bufferRange = 500;
 
                 function setRange() {
                     bufferRange = document.getElementById("bufferRange").value;
@@ -213,7 +213,7 @@
                             }
                         }
 
-                        var BufferKm = turf.buffer(polygon, bufferRange, {units: 'kilometers'});
+                        var BufferKm = turf.buffer(polygon, bufferRange, {units: 'meters'});
 
                         map.addLayer({
                             "id": "buffer",

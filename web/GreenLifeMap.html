@@ -81,10 +81,10 @@
 
                 mapboxgl.accessToken = 'pk.eyJ1IjoiYXJiZTMzMyIsImEiOiJjam92NXV2d20xMjFqM3ZzNXlza3lnamp0In0.1e869HKjN--NZqCaTmnqqQ';
                 var map = new mapboxgl.Map({
-                container: 'map', // container id
-                style: 'mapbox://styles/mapbox/light-v10', // stylesheet location
-                center: [121.5, 25], // starting position
-                zoom: 9 // starting zoom
+                    container: 'map', // container id
+                    style: 'mapbox://styles/mapbox/light-v10', // stylesheet location
+                    center: [121.5, 25], // starting position
+                    zoom: 9 // starting zoom
                 });
 
                 map.on('load', function() {
@@ -105,12 +105,12 @@
                         id: 'toilets',
                         type: 'symbol',
                         source: {
-                        type: 'geojson',
-                        data: toilets
+                            type: 'geojson',
+                            data: toilets
                         },
                         layout: {
-                        'icon-image': 'toilet-11',
-                        'icon-allow-overlap': true
+                            'icon-image': 'toilet-11',
+                            'icon-allow-overlap': true
                         },
                         paint: { }
                     });
@@ -144,10 +144,10 @@
                             return;
                         }
                         var feature = features[0];
-                        var name = feature['properties']['content/properties/Name/__text'];
-                        var grade = feature['properties']['content/properties/Grade/__text'];
-                        var type1 = feature['properties']['content\/properties\/Type\/__text'];
-                        var type2 = feature['properties']['content\/properties\/Type2\/__text'];
+                        var name = feature['properties']['Name'];
+                        var grade = feature['properties']['Grade'];
+                        var type1 = feature['properties']['Type'];
+                        var type2 = feature['properties']['Type2'];
                         var type2_txt = type2 === '公家機關設置供民眾使用者'?type2:'位於'+type2+'內';
                         var toiletinfo = name+'<br>'+grade+'<br>'+type1+'<br>'+type2_txt;
                         toiletpopup.setLngLat(feature.geometry.coordinates)
@@ -189,10 +189,6 @@
                     var layers = document.getElementById('menu');
                     layers.appendChild(link);
                 }
-                var center = [121.343, 24.984];
-                var radius = 5;
-                var options = {steps: 10, units: 'kilometers', properties: {foo: 'bar'}};
-                var circle = turf.circle(center, radius, options);
             </script>
         </div>
     </body>

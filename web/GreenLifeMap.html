@@ -37,7 +37,7 @@
                 padding: 10px;
             }
 
-            button {
+            .bufferRangeSubmit {
                 background: #fff;
                 position: relative;
                 z-index: 1;
@@ -92,8 +92,10 @@
                 background: #3074a4;
             }
         </style>
-        <input id="bufferRange" placeholder='meters'></input>
-        <button onclick="setRange()">Set Range</button>
+        <!--
+            <input id="bufferRange" placeholder='meters'></input>
+            <button class="bufferRangeSubmit" onclick="setRange()">Set Range</button>
+        -->
         <nav id="menu"></nav>
         <pre id='info'></pre>
         <div id='map'>
@@ -104,7 +106,7 @@
                 })
 
                 var toilets;
-                $.getJSON('./../data/wc.geojson', function(data){
+                $.getJSON('./../data/toilet.geojson', function(data){
                     toilets = data;
                 })
 
@@ -121,6 +123,15 @@
                 function setRange() {
                     bufferRange = document.getElementById("bufferRange").value;
                     console.log(bufferRange);
+                }
+
+                var polygon_api;
+                function getAPI(lon, lat) {
+                    var polygon_url = 'https://api.mapbox.com/isochrone/v1/mapbox/walking/'+lon+','+lat+'?contours_minutes=5,10,15&contours_colors=6706ce,04e813,4286f4&polygons=true&access_token=pk.eyJ1IjoiYXJiZTMzMyIsImEiOiJjam92NXV2d20xMjFqM3ZzNXlza3lnamp0In0.1e869HKjN--NZqCaTmnqqQ'
+                    $.getJSON(polygon_url, function(data){
+                        polygon_api = data;
+                    })
+                    return polygon_api;
                 }
 
                 map.on('load', function() {
@@ -198,6 +209,7 @@
                         var lon = e.lngLat.lng;
                         var lat = e.lngLat.lat;
 
+                        /* Buffer 的部分
                         var mapLayer = map.getLayer('buffer');
 
                         if(typeof mapLayer !== 'undefined') {
@@ -220,14 +232,66 @@
                             "type": "fill",
                             "source": {
                                 "type": "geojson",
-                                "data": BufferKm
+                                "data": bufferPolygon
                             },
                             'paint': {
                                 "fill-color": "#8FE7BD",
-                                "fill-opacity": 0.75,
+                                "fill-opacity": 0.3,
                                 "fill-outline-color": "#8FE7BD"
                             }
                         });
+                        */
+
+                        // Polygon buffer 的部分
+                        var bufferPolygon = getAPI(lon, lat);
+
+                        var mapLayer = map.getLayer('polygon5');
+                        if(typeof mapLayer !== 'undefined') {
+                            // Remove map layer & source.
+                            map.removeLayer('polygon5').removeSource('polygon5');
+                            map.removeLayer('polygon10').removeSource('polygon10');
+                            map.removeLayer('polygon15').removeSource('polygon15');
+                        }
+
+                       
+                        map.addLayer({"id": "polygon15",
+                            "type": "fill",
+                            "source": {
+                                "type": "geojson",
+                                "data": bufferPolygon.features[0]
+                            },
+                            'paint': {
+                                "fill-color": "#FFB689",
+                                "fill-opacity": 0.2,
+                                "fill-outline-color": "#8FE7BD"
+                            }
+                        });
+                        map.addLayer({"id": "polygon10",
+                            "type": "fill",
+                            "source": {
+                                "type": "geojson",
+                                "data": bufferPolygon.features[1]
+                            },
+                            'paint': {
+                                "fill-color": "#FFE489",
+                                "fill-opacity": 0.3,
+                                "fill-outline-color": "#8FE7BD"
+                            }
+                        });
+                        map.addLayer({
+                            "id": "polygon5",
+                            "type": "fill",
+                            "source": {
+                                "type": "geojson",
+                                "data": bufferPolygon.features[2]
+                            },
+                            'paint': {
+                                "fill-color": "#8FE7BD",
+                                "fill-opacity": 0.5,
+                                "fill-outline-color": "#8FE7BD"
+                            }
+                        });
+
                     });
                 });
 

@@ -70,14 +70,6 @@
                 width: 10px;
             }
 
-            #min5Rect{
-                background: #000;
-                position: relative;
-                border-radius: 3px;
-                width: 20px;
-                z-index: 1;
-            }
-
             #menu {
                 background: #fff;
                 position: absolute;
@@ -285,9 +277,67 @@
                         paint: { }
                     });
 
+                    // Educate Location
+                    map.addSource('educateLocationSource', {
+                        type: "geojson",
+                        // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
+                        // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+                        data: './../data/edu.geojson',
+                        cluster: true,
+                        clusterMaxZoom: 14, // Max zoom to cluster points on
+                        clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+                    });
+                    // cluster circle
+                    map.addLayer({
+                        id: "cluster_circle_educateLocations",
+                        type: "circle",
+                        source: "educateLocationSource",
+                        filter: ["has", "point_count"],
+                        paint: {
+                            // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+                            // with three steps to implement three types of circles:
+                            //   * Blue, 20px circles when point count is less than 100
+                            //   * Yellow, 30px circles when point count is between 100 and 750
+                            //   * Pink, 40px circles when point count is greater than or equal to 750
+                            "circle-color": [
+                                "step",
+                                ["get", "point_count"],
+                                "rgba(255, 248, 163, 0.5)", 100, "rgba(255, 234, 131, 0.5)", 750, "rgba(255, 227, 85, 0.5)"
+                            ],
+                            "circle-radius": [
+                                "step",
+                                ["get", "point_count"],
+                                20, 100, 30, 750, 40
+                            ]
+                    }});
+                    // cluster-point
+                    map.addLayer({
+                        id: 'cluster_educateLocations',
+                        type: 'symbol',
+                        source: "educateLocationSource",
+                        filter: ["has", "point_count"],
+                        layout: {
+                            "text-field": "{point_count_abbreviated}",
+                            "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                            "text-size": 12
+                        },
+                    });
+                    // uncluster-point
+                    map.addLayer({
+                        id: 'educateLocations',
+                        type: 'symbol',
+                        source: "educateLocationSource",
+                        filter: ["!", ["has", "point_count"]],
+                        layout: {
+                            'icon-image': 'library-11',
+                            'icon-allow-overlap': true
+                        },
+                        paint: { }
+                    });
 
                     var gogoropupup = new mapboxgl.Popup();
                     var toiletpopup = new mapboxgl.Popup();
+                    var eduLocpopup = new mapboxgl.Popup();
 
                     // infowindow
                     map.on('mousemove', function(e) {
@@ -327,6 +377,25 @@
 
                         map.getCanvas().style.cursor = features.length ? 'pointer' : '';
                     });
+                    map.on('mousemove', function(e) {
+                        var features = map.queryRenderedFeatures(e.point, { layers: ['educateLocations'] });
+                        if (!features.length) {
+                            eduLocpopup.remove();
+                            return;
+                        }
+                        var feature = features[0];
+                        var name = feature['properties']['content/properties/ORG_NAME/__text'];
+                        var applicant = feature['properties']['content/properties/APPLICANT/__text'];
+                        var address = feature['properties']['address'];
+                        var valid_date = feature['properties']['content/properties/VALID_DATE/__text'];
+                        var eduLocinfo = name+'<br>'+'<br>'+address+'<br>申請單位：'+applicant+'<br>證照有效日期：'+valid_date;
+                        eduLocpopup.setLngLat(feature.geometry.coordinates)
+                            .setHTML(eduLocinfo)
+                            .addTo(map);
+
+                        map.getCanvas().style.cursor = features.length ? 'pointer' : '';
+                    });
+
                     
                     // chick
                     map.on('click', function (e) {
@@ -419,7 +488,7 @@
                 });
 
                 // optional layer
-                var toggleableLayerIds = ['gogoros', 'toilets' ];
+                var toggleableLayerIds = ['gogoros', 'toilets', 'educateLocations'];
             
                 var type = toggleableLayerIds[0];
                 var sameTypeLayer = [type, 'cluster_'+type, 'cluster_circle_'+type];
@@ -447,11 +516,8 @@
                         }
                     }
                 };
-
                 var layers = document.getElementById('menu');
                 layers.appendChild(links0);
-
-                var toggleableLayerIds = ['gogoros', 'toilets' ];
             
                 var type1 = toggleableLayerIds[1];
                 var sameTypeLayer1 = [type1, 'cluster_'+type1, 'cluster_circle_'+type1];
@@ -477,9 +543,37 @@
                         }
                     }
                 };
-
                 var layers = document.getElementById('menu');
                 layers.appendChild(links1);
+
+                var type = toggleableLayerIds[2];
+                var sameTypeLayer = [type, 'cluster_'+type, 'cluster_circle_'+type];
+
+                var links2 = document.createElement('a');
+                links2.href = '#';
+                links2.className = 'active';
+                links2.textContent = type;
+                console.log(type);
+                links2.onclick = function (e) {
+                    console.log(type);
+                    for(var index in sameTypeLayer) {
+                        var clickedLayer = sameTypeLayer[index];
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        var visibility = map.getLayoutProperty(clickedLayer, 'visibility');
+                    
+                        if (visibility === 'visible') {
+                            map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                            this.className = '';
+                        } else {
+                            this.className = 'active';
+                            map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
+                        }
+                    }
+                };
+                var layers = document.getElementById('menu');
+                layers.appendChild(links2);
             </script>
         </div>
     </body>

@@ -100,10 +100,12 @@
         <pre id='info'></pre>
         <div id='map'>
             <script>
+                /*
                 var gogoros;
                 $.getJSON('./../data/gogoro.geojson', function(data){
                     gogoros = data;
                 })
+                */
 
                 var toilets;
                 $.getJSON('./../data/toilet.geojson', function(data){
@@ -135,26 +137,40 @@
                 }
 
                 map.on('load', function() {
+
+                    map.addSource('gogoroSource', {
+                        type: "geojson",
+                        // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
+                        // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+                        data: './../data/gogoro.geojson',
+                        cluster: true,
+                        clusterMaxZoom: 14, // Max zoom to cluster points on
+                        clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+                    });
                     map.addLayer({
                         id: 'gogoros',
                         type: 'symbol',
-                        source: {
-                        type: 'geojson',
-                        data: gogoros
-                        },
+                        source: "gogoroSource",
                         layout: {
-                        'icon-image': 'fuel-11',
-                        'icon-allow-overlap': true
+                            'icon-image': 'fuel-11',
+                            'icon-allow-overlap': true
                         },
                         paint: { }
+                    });
+
+                    map.addSource('toiletSource', {
+                        type: "geojson",
+                        // Point to GeoJSON data. This example visualizes all M1.0+ earthquakes
+                        // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+                        data: './../data/toilet.geojson',
+                        cluster: true,
+                        clusterMaxZoom: 14, // Max zoom to cluster points on
+                        clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
                     });
                     map.addLayer({
                         id: 'toilets',
                         type: 'symbol',
-                        source: {
-                            type: 'geojson',
-                            data: toilets
-                        },
+                        source: 'toiletSource',
                         layout: {
                             'icon-image': 'toilet-11',
                             'icon-allow-overlap': true
@@ -252,7 +268,6 @@
                             map.removeLayer('polygon10').removeSource('polygon10');
                             map.removeLayer('polygon15').removeSource('polygon15');
                         }
-
                        
                         map.addLayer({"id": "polygon15",
                             "type": "fill",
